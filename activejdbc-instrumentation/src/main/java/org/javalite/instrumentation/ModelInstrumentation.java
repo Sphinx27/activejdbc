@@ -17,6 +17,8 @@ limitations under the License.
 
 package org.javalite.instrumentation;
 
+import java.util.ArrayList;
+import java.util.List;
 import javassist.*;
 import javassist.bytecode.SignatureAttribute;
 
@@ -26,16 +28,12 @@ import javassist.bytecode.SignatureAttribute;
  */
 public class ModelInstrumentation {
 
-    private final CtClass[] modelClass;
+    private final CtClass modelClass;
 
     public ModelInstrumentation() throws NotFoundException {
         ClassPool cp = ClassPool.getDefault();
         cp.insertClassPath(new ClassClassPath(this.getClass()));
-        this.modelClass = new CtClass[] {cp.get("org.javalite.activejdbc.Model")};
-    }
-    
-    public ModelInstrumentation(CtClass model){
-        this.modelClass = new CtClass[] {model};
+        this.modelClass = cp.get("org.javalite.activejdbc.Model");
     }
 
     public byte[] instrument(CtClass target) throws InstrumentationException {
@@ -102,8 +100,25 @@ public class ModelInstrumentation {
     }
 
     private void doInstrument(CtClass target) throws NotFoundException, CannotCompileException {
-        for (CtClass source: modelClass){
+        CtClass[] sources = getInstrumentationSources(target);
+        for (CtClass source: sources){
             doInstrumentFromClass(target, source);
         }
     }
+
+    private CtClass[] getInstrumentationSources(CtClass target) throws NotFoundException {
+        List<CtClass> sources = new ArrayList<>();
+        CtClass sc;
+        
+        do{
+            sc = target.getSuperclass();
+
+            if( Modifier.isAbstract(sc.getModifiers())){
+                sources.add(sc);
+            }
+            
+        } while(!sc.equals(modelClass));
+        return sources.toArray(new CtClass[0]);
+    }
+
 }
