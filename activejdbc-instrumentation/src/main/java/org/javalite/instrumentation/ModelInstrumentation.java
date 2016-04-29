@@ -26,12 +26,16 @@ import javassist.bytecode.SignatureAttribute;
  */
 public class ModelInstrumentation {
 
-    private final CtClass modelClass;
+    private final CtClass[] modelClass;
 
     public ModelInstrumentation() throws NotFoundException {
         ClassPool cp = ClassPool.getDefault();
         cp.insertClassPath(new ClassClassPath(this.getClass()));
-        this.modelClass = cp.get("org.javalite.activejdbc.Model");
+        this.modelClass = new CtClass[] {cp.get("org.javalite.activejdbc.Model")};
+    }
+    
+    public ModelInstrumentation(CtClass model){
+        this.modelClass = new CtClass[] {model};
     }
 
     public byte[] instrument(CtClass target) throws InstrumentationException {
@@ -44,17 +48,17 @@ public class ModelInstrumentation {
         }
     }
 
-    private void doInstrument(CtClass target) throws NotFoundException, CannotCompileException {
-        CtMethod[] modelMethods = modelClass.getDeclaredMethods();
+    private void doInstrumentFromClass(CtClass target,CtClass source) throws NotFoundException, CannotCompileException {
+        CtMethod[] modelMethods = source.getDeclaredMethods();
         CtMethod[] targetMethods = target.getDeclaredMethods();
 
-        CtMethod modelGetClass = modelClass.getDeclaredMethod("modelClass");
+        CtMethod modelGetClass = source.getDeclaredMethod("modelClass");
         CtMethod newGetClass = CtNewMethod.copy(modelGetClass, target, null);
         newGetClass.setBody("{ return " + target.getName() + ".class; }");
 
         // do not convert Model class to Target class in methods
         ClassMap classMap = new ClassMap();
-        classMap.fix(modelClass);
+        classMap.fix(source);
 
         // convert Model.getDaClass() calls to Target.getDaClass() calls
         CodeConverter conv = new CodeConverter();
@@ -95,5 +99,11 @@ public class ModelInstrumentation {
             }
         }
         return false;
+    }
+
+    private void doInstrument(CtClass target) throws NotFoundException, CannotCompileException {
+        for (CtClass source: modelClass){
+            doInstrumentFromClass(target, source);
+        }
     }
 }
