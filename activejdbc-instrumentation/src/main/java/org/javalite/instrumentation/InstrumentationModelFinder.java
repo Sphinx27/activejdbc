@@ -32,6 +32,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
+import java.util.function.Predicate;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -43,13 +44,18 @@ public class InstrumentationModelFinder {
     private final CtClass modelClass;
     private final List<CtClass> models = new ArrayList<CtClass>();
     private final ClassPool cp;
+    private final ModelFilter<CtClass> filter;
 
-
-    protected InstrumentationModelFinder() throws NotFoundException, ClassNotFoundException {
+    protected InstrumentationModelFinder() throws NotFoundException, ClassNotFoundException{
+        this(null);
+    }
+    
+    protected InstrumentationModelFinder(ModelFilter filter) throws NotFoundException, ClassNotFoundException {
         cp = ClassPool.getDefault();
         //any simple class will do here, but Model - it causes slf4j to be loaded during instrumentation.
         cp.insertClassPath(new ClassClassPath(Class.forName("org.javalite.activejdbc.Association")));
         modelClass = cp.get("org.javalite.activejdbc.Model");
+        this.filter = filter;
     }
 
     protected void processURL(URL url) throws URISyntaxException, IOException, ClassNotFoundException {
@@ -160,6 +166,14 @@ public class InstrumentationModelFinder {
         return cp.get(className);
     }
 
+    private ModelFilter<CtClass> getFilter(){
+        if (filter!=null){
+            return filter;
+        } else {
+            return this::isModel;
+        }
+    }
+    
     protected boolean isModel(CtClass clazz) throws NotFoundException {
         return clazz != null && notAbstract(clazz) && clazz.subclassOf(modelClass) && !clazz.equals(modelClass);
     }
@@ -171,5 +185,10 @@ public class InstrumentationModelFinder {
 
     protected List<CtClass> getModels() {
         return models;
+    }
+    
+    @FunctionalInterface
+    private interface ModelFilter<T> {
+        boolean test(T object) throws NotFoundException;
     }
 }
