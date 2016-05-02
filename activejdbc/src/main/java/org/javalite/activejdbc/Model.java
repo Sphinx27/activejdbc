@@ -2749,7 +2749,7 @@ public abstract class Model extends CallbackSupport implements Externalizable {
         return values;
     }
 
-    private static <T extends Model> Class<T> modelClass() {
+    protected static <T extends Model> Class<T> modelClass() {
         throw new InitException("failed to determine Model class name, are you sure models have been instrumented?");
     }
 

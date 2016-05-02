@@ -50,17 +50,22 @@ public class ModelInstrumentation {
         CtMethod[] modelMethods = source.getDeclaredMethods();
         CtMethod[] targetMethods = target.getDeclaredMethods();
 
-        CtMethod modelGetClass = source.getDeclaredMethod("modelClass");
-        CtMethod newGetClass = CtNewMethod.copy(modelGetClass, target, null);
-        newGetClass.setBody("{ return " + target.getName() + ".class; }");
-
-        // do not convert Model class to Target class in methods
-        ClassMap classMap = new ClassMap();
-        classMap.fix(source);
-
-        // convert Model.getDaClass() calls to Target.getDaClass() calls
+        CtMethod newGetClass = null;
         CodeConverter conv = new CodeConverter();
-        conv.redirectMethodCall(modelGetClass, newGetClass);
+        
+        if (source.equals(modelClass)){
+            CtMethod modelGetClass = source.getDeclaredMethod("modelClass");
+            newGetClass = CtNewMethod.copy(modelGetClass, target, null);
+            newGetClass.setBody("{ return " + target.getName() + ".class; }");
+
+            // convert Model.getDaClass() calls to Target.getDaClass() calls
+            conv.redirectMethodCall(modelGetClass, newGetClass);
+        }
+        
+        // do not convert Model class to Target class in methods
+        ClassMap classMap = null;
+        //classMap = new ClassMap();
+       // classMap.fix(source);
 
         for (CtMethod method : modelMethods) {
             int modifiers = method.getModifiers();
@@ -69,11 +74,15 @@ public class ModelInstrumentation {
                     Instrumentation.log("Detected method: " + method.getName() + ", skipping delegate.");
                 } else {
                     CtMethod newMethod;
-                    if (Modifier.isProtected(modifiers) || Modifier.isPublic(modifiers)) {
+                    if ((Modifier.isProtected(modifiers) || Modifier.isPublic(modifiers)) && !"modelClass".equals(method.getName()) ) {
                         newMethod = CtNewMethod.copy(method, target, classMap);
                         newMethod.instrument(conv);
                     } else if ("modelClass".equals(method.getName())) {
-                        newMethod = newGetClass;
+                        if (newGetClass!=null){
+                            newMethod = newGetClass;
+                        } else {
+                            newMethod = CtNewMethod.copy(method, target, classMap);
+                        }
                     } else {
                         newMethod = CtNewMethod.delegator(method, target);
                     }
@@ -109,14 +118,13 @@ public class ModelInstrumentation {
     private CtClass[] getInstrumentationSources(CtClass target) throws NotFoundException {
         List<CtClass> sources = new ArrayList<>();
         CtClass sc;
-        
         do{
             sc = target.getSuperclass();
 
             if( Modifier.isAbstract(sc.getModifiers())){
                 sources.add(sc);
             }
-            
+            target = sc;
         } while(!sc.equals(modelClass));
         return sources.toArray(new CtClass[0]);
     }

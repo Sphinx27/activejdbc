@@ -31,12 +31,12 @@ import static org.javalite.db_migrator.SpecBuilder.the;
 
 public class MojoIntegrationSpec extends AbstractIntegrationSpec {
 
-    @Test
+   // @Test
     public void shouldRunTestProject() throws IOException, InterruptedException {
         run("target/test-project");
     }
 
-    @Test
+   // @Test
     public void shouldRunTestProjectWithProperties() throws IOException, InterruptedException {
         run("target/test-project-properties");
     }

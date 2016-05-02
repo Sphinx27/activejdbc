@@ -32,7 +32,6 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
-import java.util.function.Predicate;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -166,13 +165,13 @@ public class InstrumentationModelFinder {
         return cp.get(className);
     }
 
-    private ModelFilter<CtClass> getFilter(){
+    /*private ModelFilter<CtClass> getFilter(){
         if (filter!=null){
             return filter;
         } else {
             return this::isModel;
         }
-    }
+    }*/
     
     protected boolean isModel(CtClass clazz) throws NotFoundException {
         return clazz != null && notAbstract(clazz) && clazz.subclassOf(modelClass) && !clazz.equals(modelClass);
@@ -187,7 +186,7 @@ public class InstrumentationModelFinder {
         return models;
     }
     
-    @FunctionalInterface
+    
     private interface ModelFilter<T> {
         boolean test(T object) throws NotFoundException;
     }
