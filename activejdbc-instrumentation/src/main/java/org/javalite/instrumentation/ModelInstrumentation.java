@@ -18,6 +18,7 @@ limitations under the License.
 package org.javalite.instrumentation;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import javassist.*;
 import javassist.bytecode.SignatureAttribute;
@@ -29,6 +30,8 @@ import javassist.bytecode.SignatureAttribute;
 public class ModelInstrumentation {
 
     private final CtClass modelClass;
+    
+    private final List<String> instrumentationSources = Arrays.asList("org.javalite.activejdbc.Model","pl.hereworx.activeRepository.GenericRepository");
 
     public ModelInstrumentation() throws NotFoundException {
         ClassPool cp = ClassPool.getDefault();
@@ -52,6 +55,7 @@ public class ModelInstrumentation {
 
         CtMethod newGetClass = null;
         CodeConverter conv = new CodeConverter();
+        ClassMap classMap = new ClassMap();
         
         if (source.equals(modelClass)){
             CtMethod modelGetClass = source.getDeclaredMethod("modelClass");
@@ -60,13 +64,11 @@ public class ModelInstrumentation {
 
             // convert Model.getDaClass() calls to Target.getDaClass() calls
             conv.redirectMethodCall(modelGetClass, newGetClass);
+            classMap.fix(source);
         }
         
         // do not convert Model class to Target class in methods
-        ClassMap classMap = null;
-        //classMap = new ClassMap();
-       // classMap.fix(source);
-
+        
         for (CtMethod method : modelMethods) {
             int modifiers = method.getModifiers();
             if (Modifier.isStatic(modifiers)) {
@@ -120,13 +122,16 @@ public class ModelInstrumentation {
         CtClass sc;
         do{
             sc = target.getSuperclass();
-
-            if( Modifier.isAbstract(sc.getModifiers())){
+            if (validInstrumentationSource(sc)){
                 sources.add(sc);
             }
             target = sc;
         } while(!sc.equals(modelClass));
         return sources.toArray(new CtClass[0]);
+    }
+
+    private boolean validInstrumentationSource(CtClass sc) {
+        return instrumentationSources.contains(sc.getName());
     }
 
 }

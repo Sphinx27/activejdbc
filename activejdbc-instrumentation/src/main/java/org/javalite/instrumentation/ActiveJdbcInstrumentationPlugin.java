@@ -56,7 +56,7 @@ public class ActiveJdbcInstrumentationPlugin extends AbstractMojo {
      * @parameter
      */
     private String[] outputDirectories;
-
+    
     /**
      * The enclosing project.
      *
