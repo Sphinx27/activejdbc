@@ -78,8 +78,8 @@
         </dependency>
         <dependency>
             <groupId>org.javalite</groupId>
-            <artifactId>activejdbc</artifactId>
-            <version>1.4.12.HereWorx-SNAPSHOT</version>
+            <artifactId>javalite-common</artifactId>
+            <version>${project.version}</version>
         </dependency>
     </dependencies>
     <properties>

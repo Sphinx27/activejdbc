@@ -24,7 +24,7 @@ import java.util.logging.Level;
 import javassist.*;
 import javassist.bytecode.SignatureAttribute;
 import org.apache.log4j.Logger;
-import org.javalite.activejdbc.annotations.InstrumentWith;
+import org.javalite.annotations.InstrumentWith;
 
 /**
  * @author Igor Polevoy
