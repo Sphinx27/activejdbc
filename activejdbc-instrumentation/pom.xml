@@ -2,13 +2,13 @@
     <modelVersion>4.0.0</modelVersion>
     <artifactId>activejdbc-instrumentation</artifactId>
     <packaging>maven-plugin</packaging>
-    <version>1.4.11.HereWorx</version>
+    <version>1.4.12.HereWorx-SNAPSHOT</version>
     <name>JavaLite - Instrumentation Plugin and JavaAgent</name>
 
     <parent>
         <groupId>org.javalite</groupId>
         <artifactId>activejdbc-root</artifactId>
-        <version>1.4.11.HereWorx</version>
+        <version>1.4.12.HereWorx-SNAPSHOT</version>
     </parent>
 
     <profiles>
@@ -79,7 +79,7 @@
         <dependency>
             <groupId>org.javalite</groupId>
             <artifactId>activejdbc</artifactId>
-            <version>1.4.11.HereWorx</version>
+            <version>1.4.12.HereWorx-SNAPSHOT</version>
         </dependency>
     </dependencies>
     <properties>

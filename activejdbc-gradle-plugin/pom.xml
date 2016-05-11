@@ -6,11 +6,11 @@
     <parent>
         <groupId>org.javalite</groupId>
         <artifactId>activejdbc-root</artifactId>
-        <version>1.4.11.HereWorx</version>
+        <version>1.4.12.HereWorx-SNAPSHOT</version>
     </parent>
 
     <artifactId>activejdbc-gradle-plugin</artifactId>
-    <version>1.4.11.HereWorx</version>
+    <version>1.4.12.HereWorx-SNAPSHOT</version>
     <name>JavaLite - Gradle Instrumentation Plugin</name>
 
     <!-- NOTE: These dependencies are duplicated by necessity in build.gradle -->
