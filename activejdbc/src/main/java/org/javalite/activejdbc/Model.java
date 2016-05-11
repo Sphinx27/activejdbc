@@ -319,7 +319,7 @@ public abstract class Model extends CallbackSupport implements Externalizable {
      */
     private <T extends Model> T setRaw(String attributeName, Object value) {
         if (manageTime && attributeName.equalsIgnoreCase("created_at")) {
-            throw new IllegalArgumentException("cannot set 'created_at'");
+            throw new IllegalArgumentException("cannot set reserved field 'created_at'. ");
         }
         metaModelLocal.checkAttribute(attributeName);
         attributes.put(attributeName, value);
